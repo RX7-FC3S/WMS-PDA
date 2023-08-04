@@ -7,7 +7,7 @@ export default defineConfig({
     vue(),
   ],
   server: {
-    base: './',
+    base: '/WMS-FRONTEND/',
     cors: false,
     proxy: {
       '^/api': {
