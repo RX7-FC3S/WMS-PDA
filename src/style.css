@@ -1,0 +1,22 @@
+body {
+  margin: 0;
+}
+
+:root {
+  --yellow: rgb(250, 191, 0);
+  --black: rgb(38, 38, 38);
+  --gray: rgb(166, 166, 166)
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh
+}
+
+table {
+  color: rgb(38, 38, 38);
+}
