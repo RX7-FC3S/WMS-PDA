@@ -2,22 +2,34 @@
 import { ref } from 'vue'
 import { request } from '../../../utils/request.js'
 import scrollTable from '../../../components/scrollTable.vue'
-// style
-const styleVars = ref({
-    '--date-picker-title-background': 'red'
+
+const props = defineProps({
+    defaultQuery: Object
 })
+
+function displayDateRange(dateArray) {
+    const strat_date = new Date(dateArray[0])
+    const end_date = new Date(dateArray[1])
+    return strat_date.toLocaleDateString() + ' ~ ' + (end_date.getMonth() + 1) + '/' + end_date.getDate()
+}
+
 
 // query
 const query = ref({
-    inbound_order_num: '',
-    sender: '',
-    dateSpan: new Date().toLocaleDateString() + ' ~ ' + new Date(new Date().valueOf() + 86400000).toLocaleDateString().slice(5)
+    orderNum: '',
+    orderType: props.defaultQuery.orderType,
+    dateRange: displayDateRange([
+        // today
+        new Date().toLocaleDateString(),
+        // tomorrow
+        new Date(new Date().valueOf() + 86400000).toLocaleDateString()
+    ])
 })
 // query end
 
 // date picker
 const datePickerVisible = ref(false)
-const dateSpan = ref([])
+const dateRange = ref([])
 // date picker end
 
 // scroll-table
@@ -26,6 +38,7 @@ const table = ref({
     data: []
 })
 const finished = ref(false)
+const loading = ref(false)
 let headLoaded = false
 // scroll table end
 
@@ -37,23 +50,18 @@ function inquire() {
     load()
 }
 
-function datePickerPopup() {
-    datePickerVisible.value = true
-}
-
 function datePickerChange() {
-    const start = new Date(dateSpan.value[0]).toLocaleDateString()
-    const end = new Date(dateSpan.value[1]).toLocaleDateString().slice(5)
-    query.value.dateSpan = start+ ' ~ ' + end
+    query.value.dateRange = displayDateRange(dateRange.value)
 }
 
 function load() {
+    loading.value = true
     setTimeout(() => {
+        let orderType = query.value.orderType
         let offset = table.value.data.length
-        let limit = 20
-        request(`/get_inbound_orders?offset=${offset}&limit=${limit}`)
+        let limit = 10
+        request(`/get_inbound_orders?order_type=${orderType}&offset=${offset}&limit=${limit}`)
             .then(res => {
-                finished.value = true
                 // 加载表头
                 if (headLoaded === false) {
                     for (let key in res[0]) {
@@ -65,14 +73,13 @@ function load() {
                 for (let row of res) {
                     table.value.data.push(row)
                 }
-                finished.value = false
                 // 是否没有更多了
                 if (res.length === 0) {
                     finished.value = true
                 }
-
+                loading.value = false
             })
-    }, 100)
+    }, 1000)
 }
 
 </script>
@@ -94,14 +101,17 @@ function load() {
                 <var-input style="flex-grow: 1;" variant="outlined" placeholder="收货方" v-model="query.item_name"></var-input>
             </var-col>
             <var-col :span="12">
-                <var-input style="flex-grow: 1;" variant="outlined" placeholder="时间范围" v-model="query.dateSpan"
-                    @focus="datePickerPopup()"></var-input>
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="时间范围" v-model="query.dateRange" >
+                    <template #append-icon>
+                        <var-icon namespace="mdi" name="calendar-clock" size="24px" @click="datePickerVisible = true" />
+                    </template>
+                </var-input>
             </var-col>
         </var-row>
     </div>
 
     <div class="content">
-        <scroll-table :finished="finished" @load="load">
+        <scroll-table :finished="finished" :loading="loading" @load="load">
             <thead>
                 <tr>
                     <th v-for="cell in table.head" :id="cell">{{ cell }}</th>
@@ -115,23 +125,28 @@ function load() {
         </scroll-table>
     </div>
 
-    <var-row :gutter="12">
-        <var-col :span="12">
-            <var-button block @click="inquire">查询</var-button>
-        </var-col>
-        <var-col :span="12">
-            <var-button block type="primary">返回</var-button>
-        </var-col>
-    </var-row>
+    <div class="buttons">
+        <var-row :gutter="12">
+            <var-col :span="12">
+                <var-button block @click="inquire">查询</var-button>
+            </var-col>
+            <var-col :span="12">
+                <var-button block type="primary">返回</var-button>
+            </var-col>
+        </var-row>
+    </div>
 
-    <var-style-provider :style-vars="styleVars">
-        <var-popup v-model:show="datePickerVisible">
-            <var-date-picker type="date" v-model="dateSpan" range @change="datePickerChange()"></var-date-picker>
-        </var-popup>
-    </var-style-provider>
+    <!-- date picker -->
+    <var-popup v-model:show="datePickerVisible">
+        <var-date-picker type="date" v-model="dateRange" range @change="datePickerChange()"></var-date-picker>
+    </var-popup>
 </template>
   
 <style scoped>
+.query {
+    margin-bottom: 12px;
+}
+
 .query .var-row {
     margin-bottom: 12px !important;
 }
@@ -141,8 +156,8 @@ function load() {
 }
 
 .content {
-    flex-grow: 1;
-    margin: 12px 0;
+    height: calc(100% - 156px);
+    margin-bottom: 12px;
 }
 
 .buttons {
@@ -160,7 +175,6 @@ function load() {
 
 .var-date-picker {
     width: calc(100vw - 24px);
-    /* height: 70%; */
 }
 </style>
   

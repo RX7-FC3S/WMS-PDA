@@ -46,16 +46,22 @@ const menusAvailable = [
                 title: '物料信息',
                 to: '/materials'
             },
+
+        ]
+    },
+    {
+        title: '调试',
+        items: [
+            {
+                title: 'date-range-input',
+                to: '/date-range-input'
+            },
             {
                 title: 'scroll-table',
                 to: '/scroll-table'
             },
-            {
-                title: 'var-list-test',
-                to: '/var-list-test'
-            },
         ]
-    },
+    }
 ]
 
 </script>

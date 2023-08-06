@@ -20,3 +20,18 @@ body {
 table {
   color: rgb(38, 38, 38);
 }
+
+
+/* icons */
+@font-face {
+  font-family: 'material-design-icons';
+  src: url('https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/fonts/materialdesignicons-webfont.woff2');
+}
+
+.mdi {
+  font-family: 'material-design-icons';
+}
+
+.mdi-calendar-clock::before {
+  content: '\F00F0';
+}

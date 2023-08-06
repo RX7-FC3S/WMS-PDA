@@ -36,7 +36,10 @@ rootStyleVars = {
 
   // date-picker style
   '--date-picker-title-background': 'var(--yellow)',
-  '--date-picker-title-color': 'var(--black)'
+  '--date-picker-title-color': 'var(--black)',
+
+  // icon style
+  '--field-decorator-outlined-normal-icon-padding': '0'
 
 
 }
