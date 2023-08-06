@@ -1,4 +1,4 @@
-<!-- <script setup>
+<script setup>
 import { ref } from 'vue'
 
 const props = defineProps({
@@ -15,7 +15,7 @@ function datePickerChange() {
 </script>
 
 <template>
-    <var-input variant="outlined" placeholder="时间范围">
+    <!-- <var-input variant="outlined" placeholder="时间范围">
         <template #append-icon>
             <var-icon namespace="mdi" name="calendar-clock" size="24px" @click="datePickerVisible = true" />
         </template>
@@ -23,11 +23,11 @@ function datePickerChange() {
 
     <var-popup v-model:show="datePickerVisible">
         <var-date-picker type="date" v-model="defaultDateSpan" range @change="datePickerChange()"></var-date-picker>
-    </var-popup>
+    </var-popup> -->
 </template>
 
 <style>
 .var-date-picker {
     width: calc(100vw - 24px);
 }
-</style> -->
+</style>
