@@ -15,7 +15,7 @@ function datePickerChange() {
 </script>
 
 <template>
-    <var-input variant="outlined" placeholder="时间范围" :model-value="defaultDateSpan">
+    <var-input variant="outlined" placeholder="时间范围">
         <template #append-icon>
             <var-icon namespace="mdi" name="calendar-clock" size="24px" @click="datePickerVisible = true" />
         </template>
