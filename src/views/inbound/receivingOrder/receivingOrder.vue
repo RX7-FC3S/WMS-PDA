@@ -1,7 +1,24 @@
 <script setup>
 import { ref } from 'vue'
+import { defineStore } from 'pinia'
 import scrollTable from '../../../components/scrollTable.vue'
 import { get_receiving_orders } from '../../../api/receivingOrder.js'
+
+
+const useReceiveingOrderStore = defineStore('receiving_order', () => {
+    // 服务器返回的数据
+    const data = {
+        receiving_orders: []
+    }
+    // 页面参数
+    const params = {
+
+    }
+    // 组件状态
+    const status = {
+
+    }
+})
 
 const props = defineProps({
     defaultQuery: Object
@@ -16,7 +33,7 @@ function displayDateRange(dateArray) {
 
 // query
 const query = ref({
-    orderNum: '',
+    orderNumber: '',
     orderType: props.defaultQuery.orderType,
     dateRange: displayDateRange([
         // today
@@ -56,43 +73,41 @@ function datePickerChange() {
 
 function load() {
     loading.value = true
-    setTimeout(() => {
-        get_receiving_orders({
-            params: {
-                id: null,
-                create_at: null,
-                update_at: null,
-                order_number: null,
-            },
-            config: {
-                limit: 10,
-                offset: 0
+    get_receiving_orders({
+        params: {
+            id: null,
+            create_at: null,
+            update_at: null,
+            order_number: null,
+        },
+        config: {
+            limit: 10,
+            offset: 0
+        }
+    })
+        .then(response => {
+            const { status, message, data } = response
+            if (status === 'error') {
+                console.log('error', message)
+            }
+            else {
+                if (headLoaded === false) {
+                    for (let key in data[0]) {
+                        table.value.head.push(key)
+                    }
+                    headLoaded = true
+                }
+                // 加载表身
+                for (let row of data) {
+                    table.value.data.push(row)
+                }
+                // 是否没有更多了
+                if (data.length === 0) {
+                    finished.value = true
+                }
+                loading.value = false
             }
         })
-            .then(response => {
-                const { status, message, data } = response
-                if (status === 'error') {
-                    console.log('error', message)
-                }
-                else {
-                    if (headLoaded === false) {
-                        for (let key in data[0]) {
-                            table.value.head.push(key)
-                        }
-                        headLoaded = true
-                    }
-                    // 加载表身
-                    for (let row of data) {
-                        table.value.data.push(row)
-                    }
-                    // 是否没有更多了
-                    if (data.length === 0) {
-                        finished.value = true
-                    }
-                    loading.value = false
-                }
-            })
-    }, 1000)
 }
 
 </script>
