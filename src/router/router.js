@@ -7,23 +7,12 @@ const routes = [
 
     // inbound order of finished goods
     {
-        path: '/inbound-order-of-finished-goods',
-        component: () => import('../views/inbound/order/inboundOrder.vue'),
-        meta: { title: '成品入库' },
+        path: '/receiving_orders',
+        component: () => import('../views/inbound/receivingOrder/receivingOrder.vue'),
+        meta: { title: '收货单' },
         props: {
             defaultQuery: {
                 orderType: 'FG_IN'
-            }
-        }
-    },
-    // inbound order of intermediate goods
-    {
-        path: '/inbound-order-of-intermediate-goods',
-        component: () => import('../views/inbound/order/inboundOrder.vue'),
-        meta: { title: '半成品入库' },
-        props: {
-            defaultQuery: {
-                orderType: 'IG_IN',
             }
         }
     },

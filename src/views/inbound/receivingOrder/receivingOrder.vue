@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import { request } from '../../../utils/request.js'
 import scrollTable from '../../../components/scrollTable.vue'
+import { get_receiving_orders } from '../../../api/receivingOrder.js'
 
 const props = defineProps({
     defaultQuery: Object
@@ -57,27 +57,40 @@ function datePickerChange() {
 function load() {
     loading.value = true
     setTimeout(() => {
-        let orderType = query.value.orderType
-        let offset = table.value.data.length
-        let limit = 10
-        request(`/get_inbound_orders?order_type=${orderType}&offset=${offset}&limit=${limit}`)
-            .then(res => {
-                // 加载表头
-                if (headLoaded === false) {
-                    for (let key in res[0]) {
-                        table.value.head.push(key)
+        get_receiving_orders({
+            params: {
+                id: null,
+                create_at: null,
+                update_at: null,
+                order_number: null,
+            },
+            config: {
+                limit: 10,
+                offset: 0
+            }
+        })
+            .then(response => {
+                const { status, message, data } = response
+                if (status === 'error') {
+                    console.log('error', message)
+                }
+                else {
+                    if (headLoaded === false) {
+                        for (let key in data[0]) {
+                            table.value.head.push(key)
+                        }
+                        headLoaded = true
                     }
-                    headLoaded = true
+                    // 加载表身
+                    for (let row of data) {
+                        table.value.data.push(row)
+                    }
+                    // 是否没有更多了
+                    if (data.length === 0) {
+                        finished.value = true
+                    }
+                    loading.value = false
                 }
-                // 加载表身
-                for (let row of res) {
-                    table.value.data.push(row)
-                }
-                // 是否没有更多了
-                if (res.length === 0) {
-                    finished.value = true
-                }
-                loading.value = false
             })
     }, 1000)
 }
@@ -88,7 +101,7 @@ function load() {
     <div class="query">
         <var-row :gutter="12">
             <var-col :span="12">
-                <var-input style="flex-grow: 1;" variant="outlined" placeholder="客户订单号"
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="收货单号"
                     v-model="query.inbound_order_num"></var-input>
             </var-col>
             <var-col :span="12">
@@ -101,7 +114,7 @@ function load() {
                 <var-input style="flex-grow: 1;" variant="outlined" placeholder="收货方" v-model="query.item_name"></var-input>
             </var-col>
             <var-col :span="12">
-                <var-input style="flex-grow: 1;" variant="outlined" placeholder="时间范围" v-model="query.dateRange" >
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="时间范围" v-model="query.dateRange">
                     <template #append-icon>
                         <var-icon namespace="mdi" name="calendar-clock" size="24px" @click="datePickerVisible = true" />
                     </template>

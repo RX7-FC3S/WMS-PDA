@@ -9,17 +9,9 @@ const menusAvailable = [
         title: '入库',
         items: [
             {
-                title: '成品入库',
-                to: '/inbound-order-of-finished-goods'
-            },
-            {
-                title: '半成品入库',
-                to: '/inbound-order-of-intermediate-goods'
-            },
-            {
-                title: '退货入库',
-                to: '/#'
-            },
+                title: '收货单',
+                to: '/receiving_orders'
+            }
         ]
     },
     {
@@ -68,8 +60,8 @@ const menusAvailable = [
 <template>
     <var-collapse v-model="value" accordion :offset="false">
         <var-collapse-item v-for="menu in menusAvailable" :title="menu.title">
-            <var-cell v-for="item in menu.items"><router-link  :to="item.to">{{ item.title }}</router-link></var-cell>
-            
+            <var-cell v-for="item in menu.items"><router-link :to="item.to">{{ item.title }}</router-link></var-cell>
+
         </var-collapse-item>
     </var-collapse>
 </template>
