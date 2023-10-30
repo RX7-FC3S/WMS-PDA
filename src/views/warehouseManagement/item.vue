@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { request } from '../../utils/request.js'
+import { request } from '@/utils/request.js'
 import scrollTable from '../../components/scrollTable.vue';
 
 
@@ -66,10 +66,12 @@ function load() {
     <div class="query">
         <var-row :gutter="12">
             <var-col :span="12">
-                <var-input style="flex-grow: 1;" variant="outlined" placeholder="物料编码" v-model="query.item_code"></var-input>
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="物料编码"
+                    v-model="query.item_code"></var-input>
             </var-col>
             <var-col :span="12">
-                <var-input style="flex-grow: 1;" variant="outlined" placeholder="物料描述" v-model="query.item_name"></var-input>
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="物料描述"
+                    v-model="query.item_name"></var-input>
             </var-col>
         </var-row>
     </div>

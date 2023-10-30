@@ -1,63 +1,10 @@
 <script setup>
 import { ref } from 'vue'
-import { defineStore } from 'pinia'
-import scrollTable from '../../../components/scrollTable.vue'
-import { get_receiving_orders } from '../../../api/receivingOrder.js'
+import scrollTable from '@/components/scrollTable.vue'
+import { get_receiving_orders } from '@/api/receivingOrder.js'
+import { useReceivingOrderStore } from '@/stores/receiving_order';
 
-
-const useReceiveingOrderStore = defineStore('receiving_order', () => {
-    // 服务器返回的数据
-    const data = {
-        receiving_orders: []
-    }
-    // 页面参数
-    const params = {
-
-    }
-    // 组件状态
-    const status = {
-
-    }
-})
-
-const props = defineProps({
-    defaultQuery: Object
-})
-
-function displayDateRange(dateArray) {
-    const strat_date = new Date(dateArray[0])
-    const end_date = new Date(dateArray[1])
-    return strat_date.toLocaleDateString() + ' ~ ' + (end_date.getMonth() + 1) + '/' + end_date.getDate()
-}
-
-
-// query
-const query = ref({
-    orderNumber: '',
-    orderType: props.defaultQuery.orderType,
-    dateRange: displayDateRange([
-        // today
-        new Date().toLocaleDateString(),
-        // tomorrow
-        new Date(new Date().valueOf() + 86400000).toLocaleDateString()
-    ])
-})
-// query end
-
-// date picker
-const datePickerVisible = ref(false)
-const dateRange = ref([])
-// date picker end
-
-// scroll-table
-const table = ref({
-    head: [],
-    data: []
-})
-const finished = ref(false)
-const loading = ref(false)
-let headLoaded = false
-// scroll table end
+const receivingOrderStore = useReceivingOrderStore()
 
 
 // Methods
@@ -72,7 +19,7 @@ function datePickerChange() {
 }
 
 function load() {
-    loading.value = true
+    receivingOrderStore.loading = true
     get_receiving_orders({
         params: {
             id: null,
@@ -89,6 +36,8 @@ function load() {
             const { status, message, data } = response
             if (status === 'error') {
                 console.log('error', message)
+                receivingOrderStore.loading = false
+                receivingOrderStore.failed = true
             }
             else {
                 if (headLoaded === false) {
@@ -108,6 +57,10 @@ function load() {
                 loading.value = false
             }
         })
+        .catch(() => {
+            receivingOrderStore.loading = false
+            receivingOrderStore.failed = true
+        })
 }
 
 </script>
@@ -117,21 +70,25 @@ function load() {
         <var-row :gutter="12">
             <var-col :span="12">
                 <var-input style="flex-grow: 1;" variant="outlined" placeholder="收货单号"
-                    v-model="query.inbound_order_num"></var-input>
+                    v-model="receivingOrderStore.orderNumber"></var-input>
             </var-col>
             <var-col :span="12">
-                <var-input style="flex-grow: 1;" variant="outlined" placeholder="发货方" v-model="query.sender"></var-input>
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="发货方"
+                    v-model="receivingOrderStore.sender"></var-input>
             </var-col>
         </var-row>
 
         <var-row :gutter="12">
             <var-col :span="12">
-                <var-input style="flex-grow: 1;" variant="outlined" placeholder="收货方" v-model="query.item_name"></var-input>
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="收货方"
+                    v-model="receivingOrderStore.receiver"></var-input>
             </var-col>
             <var-col :span="12">
-                <var-input style="flex-grow: 1;" variant="outlined" placeholder="时间范围" v-model="query.dateRange">
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="时间范围"
+                    v-model="receivingOrderStore.timeSpan">
                     <template #append-icon>
-                        <var-icon namespace="mdi" name="calendar-clock" size="24px" @click="datePickerVisible = true" />
+                        <var-icon namespace="mdi" name="calendar-clock" size="24px"
+                            @click="receivingOrderStore.datePickerVisible = true" />
                     </template>
                 </var-input>
             </var-col>
@@ -139,14 +96,15 @@ function load() {
     </div>
 
     <div class="content">
-        <scroll-table :finished="finished" :loading="loading" @load="load">
+        <scroll-table :finished="receivingOrderStore.finished" :loading="receivingOrderStore.loading"
+            :failed="receivingOrderStore.failed" @load="load">
             <thead>
                 <tr>
-                    <th v-for="cell in table.head" :id="cell">{{ cell }}</th>
+                    <th v-for="cell in receivingOrderStore.tableHead" :id="cell">{{ cell }}</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in table.data">
+                <tr v-for="row in receivingOrderStore.tableData">
                     <td v-for="cell in row">{{ cell }}</td>
                 </tr>
             </tbody>
@@ -165,8 +123,8 @@ function load() {
     </div>
 
     <!-- date picker -->
-    <var-popup v-model:show="datePickerVisible">
-        <var-date-picker type="date" v-model="dateRange" range @change="datePickerChange()"></var-date-picker>
+    <var-popup v-model:show="receivingOrderStore.datePickerVisible">
+        <var-date-picker type="date" v-model="receivingOrderStore.timeSpan" @change="datePickerChange()"></var-date-picker>
     </var-popup>
 </template>
   

@@ -1,28 +1,28 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 const routes = [
-    { path: '/', component: () => import('../views/index.vue'), meta: { title: '首页' } },
+    // 首页
+    { path: '/', component: () => import('@/views/index.vue'), meta: { title: '首页' } },
 
-    // inbound
-
-    // inbound order of finished goods
+    // 入库
     {
         path: '/receiving_orders',
-        component: () => import('../views/inbound/receivingOrder/receivingOrder.vue'),
-        meta: { title: '收货单' },
-        props: {
-            defaultQuery: {
-                orderType: 'FG_IN'
-            }
-        }
+        component: () => import('@/views/inbound/receivingOrder/receivingOrder.vue'),
+        meta: { title: '收货单' }
+    },
+    // 出库
+    {
+        path: '/shipping_orders',
+        component: () => import('@/views/outbound/shippingOrder/shippingOrder.vue'),
+        meta: { title: '发货单' }
     },
 
-    // inWarehouse
-    { path: '/materials', component: () => import('../views/inWarehouse/materials.vue'), meta: { title: '物料信息' } },
+    // 库内
+    { path: '/items', component: () => import('@/views/warehouseManagement/item.vue'), meta: { title: '物料信息' } },
 
-    // debug components
-    { path: '/scroll-table', component: () => import('../components/scrollTable.vue'), meta: { title: 'scroll-table' } },
-    { path: '/date-range-input', component: () => import('../components/dateRangeInput.vue'), meta: { title: 'date-range-input' } },
+    // 调试
+    { path: '/scroll-table', component: () => import('@/components/scrollTable.vue'), meta: { title: 'scroll-table' } },
+    { path: '/date-range-input', component: () => import('@/components/dateRangeInput.vue'), meta: { title: 'date-range-input' } },
 ]
 
 const router = createRouter({

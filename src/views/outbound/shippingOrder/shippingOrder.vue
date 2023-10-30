@@ -1,96 +1,63 @@
 <script setup>
-import { ref } from 'vue'
-import { request } from '../../../utils/request.js'
-import scrollTable from '../../../components/scrollTable.vue'
-
-const table = ref({
-    head: [],
-    data: []
-})
-
-// query
-const query = ref({
-    item_code: '',
-    item_desc: '',
-})
-// query end
-
-
-// scroll-table
-const finished = ref(false)
-
-let headLoaded = false
-// scroll table end
-
-
-// Methods
-function inquire() {
-    finished.value = false
-    table.value.data = []
-    load()
-}
-
-function load() {
-    setTimeout(() => {
-        let item_code = query.value.item_code
-        let item_desc = query.value.item_desc
-        let offset = table.value.data.length
-        let limit = 20
-        request(`/get_materials?item_code=${item_code}&item_desc=${item_desc}&offset=${offset}&limit=${limit}`)
-            .then(res => {
-                finished.value = true
-                // 加载表头
-                if (headLoaded === false) {
-                    for (let key in res[0]) {
-                        table.value.head.push(key)
-                    }
-                    headLoaded = true
-                }
-                // 加载表身
-                for (let row of res) {
-                    table.value.data.push(row)
-                }
-                finished.value = false
-                // 是否没有更多了
-                if (res.length === 0) {
-                    finished.value = true
-                }
-
-            })
-    }, 100)
-}
+import scrollTable from '@/components/scrollTable.vue'
+import { storeToRefs } from 'pinia'
+import { useShippingOrderStore } from '@/stores/shipping_order.js';
+const shippingOrderStore = useShippingOrderStore()
+const { queryParams, tableHead, tableData } = shippingOrderStore
+// const tableHead = []
+console.log(tableHead)
+// for (let key in tableData[0]) {
+//     tableHead.push(key)
+// }
 
 
 </script>
 
 <template>
-    <var-row :gutter="12">
-        <var-col :span="12">
-            <var-input style="flex-grow: 1;" variant="outlined" placeholder="物料编码" v-model="query.item_code"></var-input>
-        </var-col>
-        <var-col :span="12">
-            <var-input style="flex-grow: 1;" variant="outlined" placeholder="物料描述" v-model="query.item_desc"></var-input>
-        </var-col>
-    </var-row>
+    <div class="query">
+        <var-row :gutter="12">
+            <var-col :span="12">
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="发货单号"
+                    v-model="queryParams.shippingOrderNumber"></var-input>
+            </var-col>
+            <var-col :span="12">
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="发货方"
+                    v-model="queryParams.sender"></var-input>
+            </var-col>
+        </var-row>
+        <var-row :gutter="12">
+            <var-col :span="12">
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="收货方"
+                    v-model="queryParams.receiver"></var-input>
+            </var-col>
+            <var-col :span="12">
+                <var-input style="flex-grow: 1;" variant="outlined" placeholder="时间范围" v-model="queryParams.timeSpan">
+                    <template #append-icon>
+                        <var-icon namespace="mdi" name="calendar-clock" size="24px" @click="datePickerVisible = true" />
+                    </template>
+                </var-input>
+            </var-col>
+        </var-row>
+    </div>
 
     <div class="content">
-        <scroll-table :finished="finished" @load="load">
+        <scroll-table :finished="finished" :loading="loading" @load="load">
             <thead>
                 <tr>
-                    <th v-for="cell in table.head" :id="cell">{{ cell }}</th>
+                    <th v-for="cell in tableHead" :id="cell">{{ cell }}</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in table.data">
+                <tr v-for="row in tableData">
                     <td v-for="cell in row">{{ cell }}</td>
                 </tr>
             </tbody>
         </scroll-table>
     </div>
-    
+
     <var-row :gutter="12">
         <var-col :span="12">
-            <var-button block @click="inquire">查询</var-button>
+            <var-button block>查询</var-button>
         </var-col>
         <var-col :span="12">
             <var-button block type="primary">返回</var-button>
@@ -99,17 +66,21 @@ function load() {
 </template>
   
 <style scoped>
-.var-style-provider {
-    flex-grow: 1;
+.query {
+    margin-bottom: 12px;
 }
 
-.var--ellipsis {
-    height: 100% !important;
+.query .var-row {
+    margin-bottom: 12px !important;
+}
+
+.query .var-row:nth-last-child(1) {
+    margin-bottom: 0 !important;
 }
 
 .content {
-    height: calc(100% - 52px - 52px);
-    margin: 12px 0;
+    height: calc(100% - 156px);
+    margin-bottom: 12px;
 }
 
 .buttons {
@@ -123,6 +94,10 @@ function load() {
     width: 100%;
     height: 100%;
     flex-grow: 1;
+}
+
+.var-date-picker {
+    width: calc(100vw - 24px);
 }
 </style>
   

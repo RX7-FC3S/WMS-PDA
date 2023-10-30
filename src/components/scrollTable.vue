@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { onMounted } from 'vue';
 
 const props = defineProps({
-  tableLoading: Boolean,
-  tableFinished: Boolean,
+  // 表格状态
+  loading: Boolean,
+  finished: Boolean,
+  failed: Boolean,
+  // 表格样式
   cellpadding: String, // px or %
   cellspaceing: String, // px or %
 })
@@ -12,9 +14,6 @@ const props = defineProps({
 const emit = defineEmits({
   load: Function
 })
-
-const detector = ref()
-
 
 onMounted(() => {
   emit('load')
@@ -39,16 +38,20 @@ onMounted(() => {
       -->
     </slot>
     <!-- div.detector 用于检测表格是否触发加载 -->
-    <div class="detector" ref="detector"></div>
-    <div class="load" v-if="!tableLoading && !tableFinished" @click="emit('load')">
-      <slot name="load">点击加载更多</slot>
+    <!-- <div class="detector" ref="detector"></div> -->
+    <div class="to-load" v-if="!loading && !finished && !failed" @click="emit('load')">
+      <slot name="to-load">点击加载更多</slot>
     </div>
-    <div class="loading" v-if="tableLoading">
 
+    <div class="loading" v-if="loading">
       <slot name="loading">加载中...</slot>
     </div>
-    <div class="finished" v-if="tableFinished">
+
+    <div class="finished" v-if="finished">
       <slot name="finished">没有更多了</slot>
+    </div>
+    <div class="failed" v-if="failed">
+      <slot name="finished">加载失败</slot>
     </div>
   </table>
 </template>
@@ -90,7 +93,8 @@ table tbody td {
 
 .load,
 .loading,
-.finished {
+.finished,
+.failed {
   height: 40px;
   color: rgb(166, 166, 166);
   display: flex;
